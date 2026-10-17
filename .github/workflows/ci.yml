@@ -26,3 +26,13 @@ jobs:
 
       - name: Run tests
         run: python -m pytest -q
+
+  container-build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Build Docker image
+        run: docker build --tag devops-pipeline-lab:ci .
