@@ -1,5 +1,7 @@
 FROM python:3.14-slim
 
+LABEL org.opencontainers.image.source="https://github.com/1stAugusto/4Fun"
+
 WORKDIR /app
 
 COPY requirements.txt .
