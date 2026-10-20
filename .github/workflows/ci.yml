@@ -52,6 +52,13 @@ jobs:
             --env APP_ENV=ci \
             devops-pipeline-lab:ci
 
+          container_uid=$(docker exec "$container_name" id -u)
+          if [[ "$container_uid" == "0" ]]; then
+            echo "Container is running as root"
+            exit 1
+          fi
+          echo "Container runs as UID $container_uid"
+
           for attempt in {1..15}; do
             if response=$(curl --fail --silent http://127.0.0.1:8000/health); then
               if [[ "$response" == '{"status":"ok"}' ]]; then
