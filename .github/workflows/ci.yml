@@ -37,7 +37,7 @@ jobs:
       - name: Build Docker image
         run: docker build --tag devops-pipeline-lab:ci .
 
-      - name: Run container and check health endpoint
+      - name: Run container and check health and info endpoints
         shell: bash
         run: |
           set -euo pipefail
@@ -47,20 +47,33 @@ jobs:
           }
           trap cleanup EXIT
 
-          docker run --detach --name "$container_name" --publish 8000:8000 devops-pipeline-lab:ci
+          docker run --detach --name "$container_name" --publish 8000:8000 \
+            --env APP_VERSION=ci-test \
+            --env APP_ENV=ci \
+            devops-pipeline-lab:ci
 
           for attempt in {1..15}; do
             if response=$(curl --fail --silent http://127.0.0.1:8000/health); then
               if [[ "$response" == '{"status":"ok"}' ]]; then
                 echo "Health endpoint returned $response"
-                exit 0
+                break
               fi
+            fi
+            if [[ "$attempt" == "15" ]]; then
+              docker logs "$container_name"
+              exit 1
             fi
             sleep 1
           done
 
-          docker logs "$container_name"
-          exit 1
+          info=$(curl --fail --silent http://127.0.0.1:8000/info)
+          expected='{"service":"DevOps Pipeline Lab","version":"ci-test","environment":"ci"}'
+          if [[ "$info" != "$expected" ]]; then
+            echo "Expected $expected, got $info"
+            docker logs "$container_name"
+            exit 1
+          fi
+          echo "Info endpoint returned $info"
 
   publish-image:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
