@@ -29,3 +29,29 @@ sets them to `0.1.0` and `container`. They can be overridden at runtime.
 ```powershell
 pytest -q
 ```
+
+## Run with Docker Compose
+
+Start the API and build the image if needed:
+
+```powershell
+docker compose up --build --detach
+```
+
+Check the container status:
+
+```powershell
+docker compose ps
+```
+
+Open `http://127.0.0.1:8000/health` to check the health endpoint, or
+`http://127.0.0.1:8000/info` to inspect the version and environment.
+
+Stop and remove the container:
+
+```powershell
+docker compose down
+```
+
+Compose uses `0.1.0` and `development` by default. You can override them with
+the `APP_VERSION` and `APP_ENV` environment variables.
