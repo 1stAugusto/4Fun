@@ -4,6 +4,9 @@ LABEL org.opencontainers.image.source="https://github.com/1stAugusto/4Fun"
 
 WORKDIR /app
 
+ENV APP_VERSION=0.1.0 \
+    APP_ENV=container
+
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
