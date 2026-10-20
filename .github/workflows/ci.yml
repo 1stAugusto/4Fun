@@ -47,7 +47,8 @@ jobs:
           }
           trap cleanup EXIT
 
-          docker run --detach --name "$container_name" --publish 8000:8000 \
+          docker run --detach --name "$container_name" --publish 10000:10000 \
+            --env PORT=10000 \
             --env APP_VERSION=ci-test \
             --env APP_ENV=ci \
             devops-pipeline-lab:ci
@@ -60,7 +61,7 @@ jobs:
           echo "Container runs as UID $container_uid"
 
           for attempt in {1..15}; do
-            if response=$(curl --fail --silent http://127.0.0.1:8000/health); then
+            if response=$(curl --fail --silent http://127.0.0.1:10000/health); then
               if [[ "$response" == '{"status":"ok"}' ]]; then
                 echo "Health endpoint returned $response"
                 break
@@ -73,7 +74,7 @@ jobs:
             sleep 1
           done
 
-          info=$(curl --fail --silent http://127.0.0.1:8000/info)
+          info=$(curl --fail --silent http://127.0.0.1:10000/info)
           expected='{"service":"DevOps Pipeline Lab","version":"ci-test","environment":"ci"}'
           if [[ "$info" != "$expected" ]]; then
             echo "Expected $expected, got $info"
